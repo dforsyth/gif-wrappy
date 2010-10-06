@@ -1,5 +1,7 @@
 #/usr/bin/env python
 
+# See LICENSE file for license information
+
 import logging
 import random
 import re
