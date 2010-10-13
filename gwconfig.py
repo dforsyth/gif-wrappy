@@ -2,6 +2,8 @@
 
 # See LICENSE file for license information
 
+import gwcommands
+
 gw_name = 'gif-wrappy'
 gw_version = '0.5a'
 gw_codename = 'R.I.P. Google Wave.'

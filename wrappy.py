@@ -21,8 +21,10 @@ from waveapi import appengine_robot_runner
 def DEBUG(msg):
     logging.debug('debug: %s' % msg)
 
+
 class WrappyBot(robot.Robot):
     """The control center for the wrappy robot"""
+
     def __init__(self, _config):
         self._config = _config
         self.wrapper = Wrapper(self._config.wconfig)
@@ -30,6 +32,7 @@ class WrappyBot(robot.Robot):
             self._config.gw_name,
             image_url=self._config.image_url,
             profile_url=self._config.profile_url)
+        
         self.register_handler(events.DocumentChanged, self.on_changed)
         self.register_handler(events.BlipSubmitted, self.on_submitted)
         self.register_handler(events.WaveletSelfAdded, self.on_self_added)
@@ -48,7 +51,9 @@ class WrappyBot(robot.Robot):
     def write_to_wavelet(self, wavelet, message):
         wavelet.reply('%s\n' % message)
 
+
 class Wrapper(object):
+    
     def __init__(self, wconfig):
         self.image_re = re.compile(wconfig['image_re'])
         self.command_re = re.compile(wconfig['command_re'])
@@ -56,6 +61,7 @@ class Wrapper(object):
         self.admin_pw = wconfig['admin_pw']
         self.enforce_bans = wconfig['enforce_bans']
         self.notag = wconfig['notag']
+        # This is gross but whatever...
         self.commands = {   'add': self._add_image,
                             'list': self._list_tags,
                             'random': self._random_image,
@@ -63,8 +69,9 @@ class Wrapper(object):
                             'metrics': self._metrics,
                             'rmtag': self._rmtag,
                             'boom' : self._boom,
-                            'epeen': self._metrics }
-
+                            'epeen': self._metrics,
+                            'oneshot': self._one_shot}
+    
     def image_wrap(self, blip):
         self._wrap(blip, command=False)
 
@@ -206,6 +213,14 @@ class Wrapper(object):
         images = q.fetch(2000)
         for image in images:
                 blip.append(element.Image(url=image.url, caption=str(image.tags)))
+
+    def _one_shot(self, blip, startend, arguments):
+        start, end = startend
+        range = blip.range(start, end)
+        # Remove the command from the blip
+        range.delete()
+        for url in arguments:
+            blip.append(element.Image(url=image.url, caption=str(url))
 
     def replace_in_blip(self, blip, ranged_match_list, command=False):
         if not command:
