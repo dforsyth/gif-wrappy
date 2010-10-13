@@ -62,15 +62,24 @@ class Wrapper(object):
         self.enforce_bans = wconfig['enforce_bans']
         self.notag = wconfig['notag']
         # This is gross but whatever...
-        self.commands = {   'add': self._add_image,
-                            'list': self._list_tags,
-                            'random': self._random_image,
-                            'ban' : self._ban_user,
-                            'metrics': self._metrics,
-                            'rmtag': self._rmtag,
-                            'boom' : self._boom,
-                            'epeen': self._metrics,
-                            'oneshot': self._one_shot}
+        self.commands = {   'add': (self._add_image, 'add an image.'
+                            '  syntax: ::add, <imgurl>, tag, tag, tag'),
+                            'list': (self._list_tags, 'list all stored tags.'
+                            '  syntax: ::list::'),
+                            'random': (self._random_image, 'show a random'
+                            ' image.  syntax: ::random::'),
+                            'ban' : (self._ban_user, 'ban someone.'
+                            '  admin only'),
+                            'metrics': (self._metrics, 'show some wrappy stats.'
+                            '  syntax: ::metrics::'),
+                            'rmtag': (self._rmtag, 'remove a tag from an image.'
+                            '  syntax: ::rmtag, <imgurl>, tag, tag, tag::'),
+                            'boom' : (self._boom, 'BOOM!  syntax: ::boom::'),
+                            'epeen': (self._metrics, 'display of epeen size.'
+                            '  syntax: ::epeen::'),
+                            'oneshot': (self._one_shot, 'show an image by url.'
+                            '  syntax: ::oneshot, <imgurl>, <imgurl>::'),
+                            'help': (self._help, 'help') }
     
     def image_wrap(self, blip):
         self._wrap(blip, command=False)
@@ -221,6 +230,14 @@ class Wrapper(object):
         range.delete()
         for url in arguments:
             blip.append(element.Image(url=url, caption=str(url)))
+    
+    def _help(self, blip, startend, arguments):
+        start, end = startend
+        range = blip.range(start, end)
+        help_list = []
+        for cmd, (fn, help) in self.commands.iteritems():
+            help_list.append('%s    --    %s' % (cmd, help))
+        range.replace('\nwrappyhelp:\n\n%s' % '\n'.join(help_list))
 
     def replace_in_blip(self, blip, ranged_match_list, command=False):
         if not command:
@@ -237,7 +254,7 @@ class Wrapper(object):
                         'rgb(255, 0, 0)')
         else:
             for start, end, tags in ranged_match_list:
-                fn = self.commands.get(tags[0], None)
+                fn, _ = self.commands.get(tags[0], None)
                 if not fn:
                     """+1 to move past the second :"""
                     self._annotate_range(blip, start + 1, end, 'style/color',
