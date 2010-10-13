@@ -220,7 +220,7 @@ class Wrapper(object):
         # Remove the command from the blip
         range.delete()
         for url in arguments:
-            blip.append(element.Image(url=image.url, caption=str(url))
+            blip.append(element.Image(url=image.url, caption=str(url)))
 
     def replace_in_blip(self, blip, ranged_match_list, command=False):
         if not command:
